@@ -16,7 +16,19 @@ module.exports = function(environment) {
     APP: {
       // Here you can pass flags/options to your application instance
       // when it is created
-    }
+    },
+
+    contentSecurityPolicy: {
+      'script-src': "'self' 'unsafe-eval' 'unsafe-inline' http://sampleserver6.arcgisonline.com http://js.arcgis.com/ https://js.arcgis.com/ https://jsdev.arcgis.com/ http://jsdev.arcgis.com/ https://static.arcgis.com",
+      'font-src': "'self' http://fast.fonts.net https://fast.fonts.net http://workforce-dev.apps.esri.com.s3-website-us-east-1.amazonaws.com http://js.arcgis.com/ https://js.arcgis.com/",
+      'connect-src': "'self' http://sampleserver6.arcgisonline.com http://www.arcgis.com https://www.arcgis.com http://services.arcgis.com https://services.arcgis.com http://js.arcgis.com/ https://js.arcgis.com/ http://services.arcgisonline.com https://services.arcgisonline.com https://geocode.arcgis.com http://static.arcgis.com/",
+      'img-src': "'self' data: http://www.arcgis.com https://www.arcgis.com http://services.arcgis.com http://server.arcgisonline.com https://server.arcgisonline.com http://services.arcgisonline.com https://services.arcgisonline.com http://js.arcgis.com/ https://js.arcgis.com/ http://tiles1.arcgis.com/ http://tiles2.arcgis.com/ http://tiles3.arcgis.com/ http://tiles4.arcgis.com/",
+      'style-src': "'self' 'unsafe-inline' https://fast.fonts.net http://js.arcgis.com/ https://js.arcgis.com/ https://jsdev.arcgis.com/ http://jsdev.arcgis.com",
+      'media-src': "'self'"
+    },
+
+    apiHost: 'http://www.arcgis.com',
+
   };
 
   if (environment === 'development') {

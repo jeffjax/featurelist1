@@ -3,7 +3,14 @@ var EmberApp = require('ember-cli/lib/broccoli/ember-app');
 
 module.exports = function(defaults) {
   var app = new EmberApp(defaults, {
-    // Add options here
+    srcTag: 'https://js.arcgis.com/3.13/', // only needed for CDN, will default to 'built.js' if useRequire = true 
+      useRequire: false, // if this is true, srcTag via options is ignored 
+      useDojo: false, // if this is true, will inject the Dojo loader instead of RequireJS 
+      locale: 'en-us', // will use RequireJS i18n to set the localization 
+      amdPackages: [ // user defined AMD packages to search for in application 
+        'esri','dojo','dojox','dijit',
+        'put-selector','xstyle','dgrid'
+      ]
   });
 
   // Use `app.import` to add additional libraries to the generated

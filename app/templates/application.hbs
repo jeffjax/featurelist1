@@ -1,3 +1,24 @@
-<h2 id="title">Welcome to Ember</h2>
+<h2 id="title">Feature List</h2>
+{{esri-map}}
+<h2>Assignments</h2>
 
-{{outlet}}
+<table>
+  <tbody>
+    {{#each assignments as |assignment|}}
+    <tr>
+      <td>
+        {{#if assignment.symbolUrl}}
+          <img src={{assignment.symbolUrl}}>
+        {{/if}}
+      </td>
+      <td>
+        {{assignment.type}}
+        {{assignment.location}}
+      </td>      
+      <td>
+        {{assignment.priority}}
+      </td>
+    </tr>
+    {{/each}}
+  </tbody>
+</table>
