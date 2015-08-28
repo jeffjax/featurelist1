@@ -1,11 +1,11 @@
 <h2 id="title">Feature List</h2>
-{{esri-map}}
+{{esri-map registerAs=esriMap}}
 <h2>Assignments</h2>
 
 <table>
   <tbody>
     {{#each assignments as |assignment|}}
-    <tr>
+    <tr class='assignment-row' {{action 'zoomTo' assignment}}>
       <td>
         {{#if assignment.symbolUrl}}
           <img src={{assignment.symbolUrl}}>
