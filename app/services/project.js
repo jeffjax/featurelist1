@@ -3,12 +3,10 @@ import arcgisUtils from 'esri/arcgis/utils';
 import Assignment from '../models/assignment';
 import Query from 'esri/tasks/query';
 import Graphic from 'esri/graphic';
-import GraphicsLayer from 'esri/layers/GraphicsLayer';
-import jsonUtils from 'esri/renderers/jsonUtils';
+import FeatureSource from '../utils/feature-datasource';
 
 export default Ember.Service.extend({
-  assignmentsLayer: null,
-  assignmentsGraphicsLayer: null,
+  assignmentsSource: null,
   assignments: null,
 
   updateInterval: 5000,
@@ -30,17 +28,12 @@ export default Ember.Service.extend({
         var webmap = response.itemInfo.itemData;
         webmap.operationalLayers.forEach(layer => {
           if (layer.title === 'Assignments') {
-            const assignmentsLayer = response.map.getLayer(layer.id),
-                  index = response.map.graphicsLayerIds.indexOf(layer.id);
-       
-            const assignmentsGraphicsLayer = new GraphicsLayer();
-            assignmentsGraphicsLayer.renderer = jsonUtils.fromJson(assignmentsLayer.renderer.toJson());
+            let assignmentsSource = FeatureSource.create( {
+              layerId: layer.id,
+              map: response.map
+            });
 
-            response.map.addLayer(assignmentsGraphicsLayer, index);
-            response.map.removeLayer(assignmentsLayer);
-            
-            this.set('assignmentsLayer', assignmentsLayer);
-            this.set('assignmentsGraphicsLayer', assignmentsGraphicsLayer);
+            this.set('assignmentsSource', assignmentsSource);
           } else if (layer.title === 'Workers') {
             var workersLayer = response.map.getLayer(layer.id);
             this.set('workersLayer', workersLayer);
@@ -57,20 +50,21 @@ export default Ember.Service.extend({
   heartbeat: function() {
     this.set('timer', Ember.run.later(this, this.heartbeat, this.updateInterval));
 
-    if (this.assignmentsLayer) {
+    if (this.assignmentsSource) {
       this.queryAssignments();
     }
   },
 
-  queryAssignments: Ember.observer('assignmentsLayer', function() {
-    let query = new Query();
+  queryAssignments: Ember.observer('assignmentsSource.featureLayer', function() {
+    let featureLayer = this.get('assignmentsSource.featureLayer'),
+        query = new Query();
     query.where = '1=1';
     query.outFields = ['*'];
     query.orderByFields = ['last_edited_date desc'];
 
-    this.assignmentsLayer.refresh();  // without this we get cached results back
+    featureLayer.refresh();  // without this we get cached results back
 
-    this.assignmentsLayer.queryFeatures(query).then(featureSet => {
+    featureLayer.queryFeatures(query).then(featureSet => {
       this.incrementProperty('updateCount');
 
       let assignments = featureSet.features.map(graphic => {
@@ -80,12 +74,13 @@ export default Ember.Service.extend({
 
       this.set('assignments', assignments);
 
-      this.assignmentsGraphicsLayer.clear();
+      let graphicsLayer = this.get('assignmentsSource.graphicsLayer');
+      graphicsLayer.clear();
 
       assignments.forEach(assignment => {
         let graphic = new Graphic(assignment.get('graphic').toJson());
 
-        this.assignmentsGraphicsLayer.add(graphic);
+        graphicsLayer.add(graphic);
         if (!this.satisfiesFilter(assignment)) {
           graphic.hide();
         }
@@ -113,7 +108,7 @@ export default Ember.Service.extend({
     // update the graphics already on the map
     //
     for (let i = 0; i < assignments.length; i++) {
-      let graphic = this.assignmentsGraphicsLayer.graphics[i];
+      let graphic = this.assignmentsSource.get('graphicsLayer.graphics')[i];
 
       if (this.satisfiesFilter(assignments[i])) {
         graphic.show();
