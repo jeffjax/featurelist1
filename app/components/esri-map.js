@@ -6,6 +6,7 @@ import SimpleMarkerSymbol from 'esri/symbols/SimpleMarkerSymbol';
 import Color from 'esri/Color';
 import Feature from '../models/feature';
 import GraphicsLayer from 'esri/layers/GraphicsLayer';
+import jsonUtils from 'esri/renderers/jsonUtils';
 
 export default Ember.Component.extend({
   projectService: Ember.inject.service('project'),
@@ -25,11 +26,14 @@ export default Ember.Component.extend({
       var webmap = response.itemInfo.itemData;
       webmap.operationalLayers.forEach(layer => {
         if (layer.title === 'Assignments') {
-          const assignmentsLayer = response.map.getLayer(layer.id);
+          const assignmentsLayer = response.map.getLayer(layer.id),
+                index = response.map.graphicsLayerIds.indexOf(layer.id);
+     
           const assignmentsGraphicsLayer = new GraphicsLayer();
+          assignmentsGraphicsLayer.renderer = jsonUtils.fromJson(assignmentsLayer.renderer.toJson());
 
+          response.map.addLayer(assignmentsGraphicsLayer, index);
           response.map.removeLayer(assignmentsLayer);
-          response.map.addLayer(assignmentsGraphicsLayer);
           
           this.set('projectService.assignmentsLayer', assignmentsLayer);
           this.set('projectService.assignmentsGraphicsLayer', assignmentsGraphicsLayer);

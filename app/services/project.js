@@ -44,13 +44,11 @@ export default Ember.Service.extend({
       this.assignmentsGraphicsLayer.clear();
 
       assignments.forEach(assignment => {
-        let graphic = assignment.get('graphic');
-        let symbol = this.assignmentsLayer.renderer.getSymbol(graphic);
-        let clone = new Graphic(graphic.toJson());
-        clone.setSymbol(symbol);
-        this.assignmentsGraphicsLayer.add(clone);
+        let graphic = new Graphic(assignment.get('graphic').toJson());
+
+        this.assignmentsGraphicsLayer.add(graphic);
         if (!this.satisfiesFilter(assignment)) {
-          clone.hide();
+          graphic.hide();
         }
       });
     });   
