@@ -22,3 +22,8 @@ a:hover {
 .assignment-row {
   cursor: pointer;
 }
+
+input {
+  margin: 10px 0;
+  font-size: 14px;
+}

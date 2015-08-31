@@ -1,7 +1,11 @@
 <h2 id="title">Feature List</h2>
 {{esri-map registerAs=esriMap}}
 <h2>Assignments</h2>
-{{updateCount}}
+Update count: {{updateCount}} 
+<div>
+  {{input value=filterText placeholder='Filter'}}
+</div>
+
 <table>
   <tbody>
     {{#each assignments as |assignment|}}

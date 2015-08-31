@@ -27,6 +27,7 @@ export default Ember.Component.extend({
         if (layer.title === 'Assignments') {
           const assignmentsLayer = response.map.getLayer(layer.id);
           const assignmentsGraphicsLayer = new GraphicsLayer();
+
           response.map.removeLayer(assignmentsLayer);
           response.map.addLayer(assignmentsGraphicsLayer);
           

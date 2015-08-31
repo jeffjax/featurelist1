@@ -2,19 +2,11 @@ import Ember from 'ember';
 
 export default Ember.Controller.extend({
   projectService: Ember.inject.service('project'),
+  assignments: Ember.computed.alias('projectService.filteredAssignments'),
   updateCount: Ember.computed.alias('projectService.updateCount'),
+  filterText: Ember.computed.alias('projectService.filterText'),
 
   esriMap:          null,  // the esri-map component, will be set by template binding
-
-  assignments: Ember.computed('projectService.assignments.@each', function() {
-    var assignments = this.get('projectService.assignments');
-
-    if (!assignments) {
-      return null;
-    }
-
-    return assignments;
-  }),
 
   actions: {
     zoomTo: function(assignment) {
