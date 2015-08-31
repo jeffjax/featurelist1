@@ -36,6 +36,7 @@ export default Ember.Service.extend({
       this.incrementProperty('updateCount');
 
       let assignments = featureSet.features.map(graphic => {
+        graphic.attributes.status = Math.floor(Math.random() * 6);
         return Assignment.create({ graphic: graphic });
       });
 
