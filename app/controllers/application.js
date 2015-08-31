@@ -2,6 +2,8 @@ import Ember from 'ember';
 
 export default Ember.Controller.extend({
   projectService: Ember.inject.service('project'),
+  updateCount: Ember.computed.alias('projectService.updateCount'),
+
   esriMap:          null,  // the esri-map component, will be set by template binding
 
   assignments: Ember.computed('projectService.assignments.@each', function() {

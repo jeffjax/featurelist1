@@ -9,7 +9,7 @@ export default Ember.Service.extend({
   assignments: null,
 
   updateInterval: 5000,
-
+  updateCount: 0,
 
   init: function() {
     this.set('timer', Ember.run.later(this, this.heartbeat, this.updateInterval));
@@ -24,12 +24,16 @@ export default Ember.Service.extend({
   },
 
   queryAssignments: Ember.observer('assignmentsLayer', function() {
-    var query = new Query();
+    let query = new Query();
     query.where = '1=1';
     query.outFields = ['*'];
     query.orderByFields = ['last_edited_date desc'],
 
+    this.assignmentsLayer.refresh();  // without this the cache is queried
+
     this.assignmentsLayer.queryFeatures(query).then(featureSet => {
+      this.incrementProperty('updateCount');
+
       this.set('assignments', featureSet.features.map(graphic => {
         return Assignment.create({ graphic: graphic });
       }));
