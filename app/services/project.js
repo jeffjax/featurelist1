@@ -12,7 +12,7 @@ export default Ember.Service.extend({
   filterText: null,
 
   loadMap: function(mapElementId) {
-    return new Ember.RSVP.Promise((resolve, reject) => {
+    return new Ember.RSVP.Promise(resolve => {
       const id = '350815f04ffa4757a636364e824d83d7';
 
       arcgisUtils.createMap(id, mapElementId, {
@@ -86,19 +86,7 @@ export default Ember.Service.extend({
   },
 
   filterTextChanged: Ember.observer('filterText', function() {
-    // let assignments = this.get('assignments');
-
-    // // update the graphics already on the map
-    // //
-    // for (let i = 0; i < assignments.length; i++) {
-    //   let graphic = this.assignmentsSource.get('graphicsLayer.graphics')[i];
-
-    //   if (this.satisfiesFilter(assignments[i])) {
-    //     graphic.show();
-    //   } else {
-    //     graphic.hide();
-    //   }
-    // }
+    this.assignmentsSource.updateFilter();
   }),
 
   filteredAssignments: Ember.computed('assignments.@each', 'filterText', function() {

@@ -24,7 +24,7 @@ export default Ember.Object.extend({
   },
 
   query: function() {
-    return new Ember.RSVP.Promise((resolve, reject) => {
+    return new Ember.RSVP.Promise(resolve => {
       const query = new Query();
       query.where = '1=1';
       query.outFields = ['*'];
@@ -33,6 +33,10 @@ export default Ember.Object.extend({
       this.featureLayer.refresh();  // without this we get cached results back
 
       this.featureLayer.queryFeatures(query).then(featureSet => {
+
+        featureSet.features.forEach(graphic => {
+          graphic.attributes.status = Math.floor(Math.random()*6);
+        });
 
         resolve(featureSet);
         this.graphicsLayer.clear();
@@ -47,5 +51,17 @@ export default Ember.Object.extend({
         }
       });   
     });
+  },
+
+  updateFilter: function() {
+    for (var i = 0; i < this.graphicsLayer.graphics.length; i++) {
+      let graphic = this.graphicsLayer.graphics[i];
+      if (this.filter(graphic, i)) {
+        graphic.show();
+      } else {
+        graphic.hide();
+      }
+    }
+
   }
 });
