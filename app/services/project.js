@@ -1,8 +1,6 @@
 import Ember from 'ember';
 import arcgisUtils from 'esri/arcgis/utils';
 import Assignment from '../models/assignment';
-import Query from 'esri/tasks/query';
-import Graphic from 'esri/graphic';
 import FeatureSource from '../utils/feature-datasource';
 
 export default Ember.Service.extend({
@@ -33,15 +31,21 @@ export default Ember.Service.extend({
               map: response.map
             });
 
+            assignmentsSource.filter = (graphic, index) => {
+              if (this.assignments && this.assignments.length) {
+                return this.satisfiesFilter(this.assignments[index]);
+              }
+              return true;
+            };
+
             this.set('assignmentsSource', assignmentsSource);
           } else if (layer.title === 'Workers') {
             var workersLayer = response.map.getLayer(layer.id);
             this.set('workersLayer', workersLayer);
           }
-
-          resolve(response.map);
         });
     
+        resolve(response.map);
         this.set('timer', Ember.run.later(this, this.heartbeat, this.updateInterval));
       });
     });
@@ -56,35 +60,14 @@ export default Ember.Service.extend({
   },
 
   queryAssignments: Ember.observer('assignmentsSource.featureLayer', function() {
-    let featureLayer = this.get('assignmentsSource.featureLayer'),
-        query = new Query();
-    query.where = '1=1';
-    query.outFields = ['*'];
-    query.orderByFields = ['last_edited_date desc'];
-
-    featureLayer.refresh();  // without this we get cached results back
-
-    featureLayer.queryFeatures(query).then(featureSet => {
+    this.assignmentsSource.query().then(featureSet => {
       this.incrementProperty('updateCount');
 
       let assignments = featureSet.features.map(graphic => {
-        graphic.attributes.status = Math.floor(Math.random() * 6);
         return Assignment.create({ graphic: graphic });
       });
 
       this.set('assignments', assignments);
-
-      let graphicsLayer = this.get('assignmentsSource.graphicsLayer');
-      graphicsLayer.clear();
-
-      assignments.forEach(assignment => {
-        let graphic = new Graphic(assignment.get('graphic').toJson());
-
-        graphicsLayer.add(graphic);
-        if (!this.satisfiesFilter(assignment)) {
-          graphic.hide();
-        }
-      });
     });   
   }),
 
@@ -102,20 +85,20 @@ export default Ember.Service.extend({
       location.toLowerCase().indexOf(filter) > -1;
   },
 
-  filterAssignmentGraphics: Ember.observer('filterText', function() {
-    let assignments = this.get('assignments');
+  filterTextChanged: Ember.observer('filterText', function() {
+    // let assignments = this.get('assignments');
 
-    // update the graphics already on the map
-    //
-    for (let i = 0; i < assignments.length; i++) {
-      let graphic = this.assignmentsSource.get('graphicsLayer.graphics')[i];
+    // // update the graphics already on the map
+    // //
+    // for (let i = 0; i < assignments.length; i++) {
+    //   let graphic = this.assignmentsSource.get('graphicsLayer.graphics')[i];
 
-      if (this.satisfiesFilter(assignments[i])) {
-        graphic.show();
-      } else {
-        graphic.hide();
-      }
-    }
+    //   if (this.satisfiesFilter(assignments[i])) {
+    //     graphic.show();
+    //   } else {
+    //     graphic.hide();
+    //   }
+    // }
   }),
 
   filteredAssignments: Ember.computed('assignments.@each', 'filterText', function() {
